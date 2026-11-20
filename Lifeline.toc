@@ -1,0 +1,48 @@
+## Interface: 16001
+## Title: |cff4cd98cLifeline|r
+## Notes: Clean, lightweight party & raid frames built for WoW Forever.
+## Author: Scryptik
+## Version: 1.2.4
+## OptionalDeps: LibSharedMedia-3.0
+## SavedVariables: LifelineDB
+## SavedVariablesPerCharacter: LifelineCharDB
+## IconTexture: Interface\AddOns\Lifeline\Media\icon
+## AddonCompartmentFunc: Lifeline_OnAddonCompartmentClick
+## X-Category: Unit Frames
+## X-Discord: https://discord.gg/yskDeZjQj7
+## X-Curse-Project-ID: 1809338
+
+Templates.xml
+Core.lua
+Theme.lua
+Media.lua
+Dispels.lua
+UnitButton.lua
+Indicators.lua
+AuraContainers.lua
+AuraExtras.lua
+StatusEffects.lua
+CastBars.lua
+Headers.lua
+Pets.lua
+Tanks.lua
+Extras.lua
+ClickCast.lua
+AuraSounds.lua
+HideBlizzard.lua
+Profiles.lua
+OptionsCore.lua
+OptionsGeneral.lua
+OptionsLayout.lua
+OptionsAppearance.lua
+OptionsIndicators.lua
+OptionsAuras.lua
+OptionsAuraSounds.lua
+OptionsClickCast.lua
+OptionsSections.lua
+OptionsExample.lua
+OptionsWindow.lua
+Minimap.lua
+Changelog.lua
+Updates.lua
+DebugWindow.lua
