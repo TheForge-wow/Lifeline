@@ -23,5 +23,18 @@ jobs:
         with:
           fetch-depth: 0
 
+      - name: Pull this version's notes from CHANGELOG.md
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          awk -v v="$VERSION" '
+            /^## v/ { if (found) exit; if (index($0, "## v" v " ") == 1 || $0 == "## v" v) found = 1 }
+            found
+          ' CHANGELOG.md > RELEASE_NOTES.md
+          if [ ! -s RELEASE_NOTES.md ]; then
+            echo "::error::No '## v$VERSION' section found at the top of CHANGELOG.md"
+            exit 1
+          fi
+          cat RELEASE_NOTES.md
+
       - name: Package and upload (CurseForge, Wago, GitHub release)
         uses: BigWigsMods/packager@v2

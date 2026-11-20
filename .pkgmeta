@@ -1,10 +1,11 @@
 package-as: Lifeline
 
 manual-changelog:
-  filename: CHANGELOG.md
+  filename: RELEASE_NOTES.md
   markup-type: markdown
 
 ignore:
   - README.md
   - .github
   - .pkgmeta
+  - RELEASE_NOTES.md
