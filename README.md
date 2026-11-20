@@ -3,7 +3,7 @@
 Clean, lightweight party & raid frames built for WoW Forever, with click-casting, buff reminders and profiles.
 
 - **Download:** [CurseForge](https://www.curseforge.com/wow/addons/lifeline-cell-2)
-- **Website & live demo:** https://scryptik-nunya.github.io/lifeline/
+- **Website & live demo:** https://theforge-wow.github.io/lifeline/
 - **Bugs, feedback & test builds:** [The Forge Discord](https://discord.gg/yskDeZjQj7) (run `/ll debug` in game and paste the report)
 
 ## Features
@@ -14,7 +14,7 @@ Clean, lightweight party & raid frames built for WoW Forever, with click-casting
 - Click-casting on any mouse button with Shift, Ctrl or Alt, and Clique support
 - Shareable profiles
 
-![Lifeline status effects in a raid](https://scryptik-nunya.github.io/assets/img/lifeline/06_status_effects.webp)
+![Lifeline status effects in a raid](https://theforge-wow.github.io/assets/img/lifeline/06_status_effects.webp)
 
 ## Commands
 | Command | What it does |
