@@ -1,0 +1,48 @@
+<Ui xmlns="http://www.blizzard.com/wow/ui/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.blizzard.com/wow/ui/ ..\FrameXML\UI.xsd">
+    <!-- Secure unit button spawned by the group headers. Visuals are built in Lua (UnitButton.lua).
+         No OnLoad here: the header can spawn a button in combat (someone joins mid-fight),
+         and RegisterForClicks from addon code is blocked then. Clicks are registered in the
+         header's initialConfigFunction (secure) and again from Lua out of combat. -->
+    <Button name="LifelineUnitButtonTemplate" inherits="SecureUnitButtonTemplate" virtual="true" />
+
+    <!--
+        Game-managed aura containers (AuraContainers.lua). The client fills these
+        itself, so buffs/debuffs keep showing in combat even when aura details are
+        hidden from addons. The client writes into the IconTexture, DurationCooldown
+        and CountText children of each AuraButton.
+    -->
+    <ScopedModifier useForbiddenObjectTable="true">
+
+        <AuraContainer name="LifelineAuraContainerTemplate" inherits="CustomAuraContainerTemplate" virtual="true" />
+
+        <AuraButton name="LifelineAuraButtonTemplate" inherits="CustomAuraButtonTemplate" virtual="true">
+            <Layers>
+                <Layer level="BACKGROUND">
+                    <Texture parentKey="Backdrop" setAllPoints="true">
+                        <Color r="0" g="0" b="0" a="1" />
+                    </Texture>
+                </Layer>
+                <Layer level="BORDER">
+                    <Texture parentKey="IconTexture">
+                        <Anchors>
+                            <Anchor point="TOPLEFT" x="1" y="-1" />
+                            <Anchor point="BOTTOMRIGHT" x="-1" y="1" />
+                        </Anchors>
+                        <TexCoords left="0.08" right="0.92" top="0.08" bottom="0.92" />
+                    </Texture>
+                </Layer>
+                <Layer level="OVERLAY">
+                    <FontString parentKey="CountText" inherits="NumberFontNormalSmall">
+                        <Anchors>
+                            <Anchor point="BOTTOMRIGHT" x="1" y="0" />
+                        </Anchors>
+                    </FontString>
+                </Layer>
+            </Layers>
+            <Frames>
+                <Cooldown parentKey="DurationCooldown" inherits="CooldownFrameTemplate" setAllPoints="true" reverse="true" hideCountdownNumbers="true" drawSwipe="true" drawEdge="false" drawBling="false" />
+            </Frames>
+        </AuraButton>
+
+    </ScopedModifier>
+</Ui>
