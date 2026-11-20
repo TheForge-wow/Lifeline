@@ -6,15 +6,24 @@ Clean, lightweight party & raid frames built for WoW Forever, with click-casting
 - **Website & live demo:** https://scryptik-nunya.github.io/lifeline/
 - **Bugs, feedback & test builds:** [The Forge Discord](https://discord.gg/yskDeZjQj7) (run `/ll debug` in game and paste the report)
 
-## Releasing
+## Features
+- Party (2–5) and raid (6–40) frames, with separate 10, 20 and 40-player layouts and a movable tank group
+- Incoming heals, absorb shields and overheal on class-colored, dark or single-color bars
+- Dispel highlights for only the debuffs your class can remove, with colorblind-friendly colors
+- Buff and debuff indicators, CC'D, ICE BLOCK and DRINKING banners
+- Click-casting on any mouse button with Shift, Ctrl or Alt, and Clique support
+- Shareable profiles
 
-Releases are built and uploaded automatically by the [BigWigs packager](https://github.com/BigWigsMods/packager):
+![Lifeline status effects in a raid](https://scryptik-nunya.github.io/assets/img/lifeline/06_status_effects.webp)
 
-1. Update `## Version:` in `Lifeline.toc`, the fallback version in `Core.lua`, and add the new entry at the top of `CHANGELOG.md`.
-2. Commit, then push a tag with the version number (e.g. `1.2.5`). The `## v1.2.5` section of `CHANGELOG.md` becomes the CurseForge changelog for that upload.
-3. GitHub Actions packages the addon and uploads it to CurseForge (and Wago, if `WAGO_API_TOKEN` is set), plus a GitHub release.
-
-Repository secrets used: `CF_API_KEY` (required for CurseForge), `WAGO_API_TOKEN` (optional).
+## Commands
+| Command | What it does |
+|---|---|
+| `/ll` | Open or close settings |
+| `/ll unlock` / `/ll lock` | Unlock or lock frames for moving |
+| `/ll test` | Toggle the preview layout |
+| `/ll showcase` | Preview with every indicator on |
+| `/ll debug` | Open a copyable bug report |
 
 ## License
 

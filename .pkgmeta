@@ -6,6 +6,7 @@ manual-changelog:
 
 ignore:
   - README.md
+  - RELEASING.md
   - .github
   - .pkgmeta
   - RELEASE_NOTES.md
