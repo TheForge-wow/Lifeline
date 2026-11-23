@@ -7,7 +7,7 @@ local ADDON, L = ...
 _G.Lifeline = L
 
 L.name    = "Lifeline"
-L.version = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version")) or "1.2.4"
+L.version = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version")) or "1.2.5"
 L.discord = "https://discord.gg/yskDeZjQj7"
 
 ------------------------------------------------------------------------

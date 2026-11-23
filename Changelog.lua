@@ -6,6 +6,13 @@
 local _, L = ...
 
 L.CHANGES = {
+    { version = "1.2.5", title = "Scroll wheel with Shift, Ctrl and Alt", lines = {
+        { "h", "Fixes" },
+        { "b", "Shift, Ctrl and Alt now work with the scroll wheel (and mouse buttons 6 and up). The game wasn't passing the held modifier along with the wheel, so a binding like Shift + Scroll Up did nothing" },
+        { "b", "Changing a scroll wheel binding now works right away, no /reload needed. Before, the wheel kept your previous bindings until you reloaded" },
+        { "b", "Spell bindings that use Shift, Ctrl or Alt on a click now cast through a small /cast macro, the same way targeting does" },
+        { "t", "/ll debug now also logs scroll-wheel use in the \"last clicks\" list." },
+    } },
     { version = "1.2.4", title = "CC'D banner, crowd control in the middle & debuff filters that work in combat", lines = {
         { "h", "CC'D banner" },
         { "b", "STUNNED and SILENCED are replaced by one orange CC'D banner. WoW Forever doesn't let addons match enemy debuffs by spell ID, so the old stun and silence lists never fired in a real fight" },
@@ -26,8 +33,5 @@ L.CHANGES = {
     { version = "1.2.3", title = "Readable names on every class color", lines = {
         { "b", "Names and health text now have a thin black outline, so they stay readable on light class colors like priest white, rogue yellow and paladin pink" },
         { "b", "New \"Text outline\" setting under Appearance > Bars & Text: Thin outline (new default), Thick outline, Shadow only (the old look) or None. It covers names, health text and DEAD / OFFLINE / AFK, and shows live on the Example" },
-    } },
-    { version = "1.2.2", title = "Shift + click targeting fix", lines = {
-        { "b", "Shift + click (or any modifier + click) on a frame now targets that player. On WoW Forever the game's built-in target action did nothing while a modifier was held, so Lifeline now targets with a tiny /target macro instead, the same way VuhDo does. \"Target unit\" and \"Set focus\" bindings use the same trick" },
     } },
 }
