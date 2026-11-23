@@ -265,6 +265,11 @@ function L:Debug_Collect(P)
         P("debuffs seen on you lately (newest first):")
         for _, line in ipairs(seen) do P("  ", line) end
     end
+    local wh = L.wheelHover
+    if wh then
+        P("wheel bindings when you last hovered a frame (" .. wh.when .. ", " .. wh.unit .. ", wheel on frame: " .. wh.wheel .. "):")
+        for _, line in ipairs(wh.lines) do P("  ", line) end
+    end
     local clicks = L.ClickLog_Lines and L:ClickLog_Lines() or {}
     if #clicks > 0 then
         P("last clicks on frames (newest first):")

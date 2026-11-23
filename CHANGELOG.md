@@ -1,5 +1,14 @@
 # Lifeline
 
+## v1.2.5 - Scroll wheel with Shift, Ctrl and Alt
+
+### Fixes
+- Shift, Ctrl and Alt now work with the scroll wheel (and mouse buttons 6 and up). The game wasn't passing the held modifier along with the wheel, so a binding like Shift + Scroll Up did nothing
+- Changing a scroll wheel binding now works right away, no /reload needed. Before, the wheel kept your previous bindings until you reloaded
+- Spell bindings that use Shift, Ctrl or Alt on a click now cast through a small /cast macro, the same way targeting does
+
+/ll debug now also logs scroll-wheel use in the "last clicks" list.
+
 ## v1.2.4 - CC'D banner, crowd control in the middle & debuff filters that work in combat
 
 ### CC'D banner

@@ -257,9 +257,15 @@ local function BuildAttributes(wheelMode)
             if bind and bind.type and (not btn.wheel) == (not wheelMode) then
                 local p, n = mod.attr, btn.n
                 if btn.wheel then
-                    n = "-" .. btn.wheel
+                    -- The wheel (and buttons 6+) "click" the proxy through a key binding.
+                    -- On WoW Forever a binding click doesn't carry Shift/Ctrl/Alt into
+                    -- the shift-/ctrl-/alt- attribute lookup, so the modifier goes into
+                    -- the click's own name instead ("shiftwheelup") with no prefix.
+                    local modName = mod.key:gsub("%-", ""):lower()
+                    local click = modName .. btn.wheel
+                    p, n = "", "-" .. click
                     if bind.type ~= "none" then
-                        wheelKeys[#wheelKeys + 1] = { mod.key .. btn.bindKey, btn.wheel }
+                        wheelKeys[#wheelKeys + 1] = { mod.key .. btn.bindKey, click }
                     end
                 end
                 if bind.type == "none" then
@@ -283,6 +289,11 @@ local function BuildAttributes(wheelMode)
                     elseif res then
                         add(p .. "type" .. n, "macro")
                         add(p .. "macrotext" .. n, res)
+                    elseif p ~= "" then
+                        -- with Shift/Ctrl/Alt held, WoW Forever drops the built-in
+                        -- spell action (same as targeting did), so cast through a macro
+                        add(p .. "type" .. n, "macro")
+                        add(p .. "macrotext" .. n, "/cast [@mouseover] " .. spell)
                     else
                         add(p .. "type" .. n, "spell")
                         add(p .. "spell" .. n, spell)
@@ -436,21 +447,27 @@ local function EnsureProxy()
     proxy:RegisterForClicks("AnyUp", "AnyDown")
     proxy:Show()
 
+    -- wheel "clicks" show in /ll debug too
+    proxy:HookScript("PostClick", function(self, button, down) if L._LogClick then L._LogClick(self, button, down) end end)
+
     wheelHandler = CreateFrame("Frame", "LifelineWheelHandler", UIParent, "SecureHandlerBaseTemplate")
     wheelHandler:SetFrameRef("proxy", proxy)
 end
 
-local function EnterSnippet(wheelKeys)
-    local lines = {
-        'local proxy = owner:GetFrameRef("proxy")',
-        'proxy:SetAttribute("unit", self:GetAttribute("unit"))',
-        'self:ClearBindings()',
-    }
-    for _, kb in ipairs(wheelKeys) do
-        lines[#lines + 1] = ('self:SetBindingClick(true, %q, "LifelineWheelProxy", %q)'):format(kb[1], kb[2])
+-- One hover snippet for every frame, wrapped once. It reads the current wheel
+-- keys from the handler's attributes, so changing a binding only updates those
+-- attributes: no re-wrapping (an old wrapper left behind used to reset the keys
+-- to the previous bindings until a /reload).
+local ENTER_SNIPPET = [[
+    local proxy = owner:GetFrameRef("proxy")
+    proxy:SetAttribute("unit", self:GetAttribute("unit"))
+    self:ClearBindings()
+    local n = owner:GetAttribute("wk-n") or 0
+    for i = 1, n do
+        local key, click = owner:GetAttribute("wk-key" .. i), owner:GetAttribute("wk-click" .. i)
+        if key and click then self:SetBindingClick(true, key, "LifelineWheelProxy", click) end
     end
-    return table.concat(lines, "\n")
-end
+]]
 local LEAVE_SNIPPET = "self:ClearBindings()"
 
 local function Unwrap(b)
@@ -458,6 +475,8 @@ local function Unwrap(b)
     for _, script in ipairs({ "OnEnter", "OnLeave", "OnHide" }) do
         pcall(SecureHandlerUnwrapScript, b, script)
     end
+    -- give the wheel back to the camera over Lifeline's own frames
+    if b.__ll and b.EnableMouseWheel and not InCombatLockdown() then b:EnableMouseWheel(false) end
     wrapped[b] = nil
 end
 
@@ -468,13 +487,38 @@ local function ClearWheel(b)
     if ClearOverrideBindings and not InCombatLockdown() then pcall(ClearOverrideBindings, b) end
 end
 
-local currentEnter
+local currentEnter, currentKeys
+
+-- /ll debug: what the wheel keys were bound to the last time you hovered a frame
+L.wheelHover = nil
+local function NoteHover(b)
+    if not currentKeys then return end
+    local lines = {}
+    for _, kb in ipairs(currentKeys) do
+        local ok, action = pcall(rawget(_G, "GetBindingAction") or function() return nil end, kb[1], true)
+        lines[#lines + 1] = kb[1] .. " -> " .. ((ok and action and action ~= "") and action or "(nothing)")
+    end
+    local dt = rawget(_G, "date")
+    L.wheelHover = { when = dt and dt("%H:%M:%S") or "?", unit = tostring(b:GetAttribute("unit")),
+        wheel = b.IsMouseWheelEnabled and tostring(b:IsMouseWheelEnabled()) or "?", lines = lines }
+end
+
 local function WrapButton(b)
     if b.fake or InCombatLockdown() or not currentEnter then return end
-    Unwrap(b)
-    SecureHandlerWrapScript(b, "OnEnter", wheelHandler, currentEnter)
+    if not wheelHandler then return end
+    if wrapped[b] then
+        if b.EnableMouseWheel then b:EnableMouseWheel(true) end
+        return
+    end
+    SecureHandlerWrapScript(b, "OnEnter", wheelHandler, ENTER_SNIPPET)
     SecureHandlerWrapScript(b, "OnLeave", wheelHandler, LEAVE_SNIPPET)
     SecureHandlerWrapScript(b, "OnHide", wheelHandler, LEAVE_SNIPPET)
+    -- like Clique: the frame has to take mouse wheel events for wheel bindings to fire over it
+    if b.EnableMouseWheel then b:EnableMouseWheel(true) end
+    if not b.__llHoverNote then
+        b.__llHoverNote = true
+        b:HookScript("OnEnter", function(self) NoteHover(self) end)
+    end
     wrapped[b] = true
 end
 
@@ -490,8 +534,17 @@ function L:ClickCast_ApplyWheel()
         proxyApplied[kv[1]] = true
     end
 
+    currentKeys = #wheelKeys > 0 and wheelKeys or nil
+    -- the hover snippet reads these
+    local oldN = wheelHandler:GetAttribute("wk-n") or 0
+    for i = 1, math.max(oldN, #wheelKeys) do
+        local kb = wheelKeys[i]
+        wheelHandler:SetAttribute("wk-key" .. i, kb and kb[1] or nil)
+        wheelHandler:SetAttribute("wk-click" .. i, kb and kb[2] or nil)
+    end
+    wheelHandler:SetAttribute("wk-n", #wheelKeys)
     if #wheelKeys > 0 then
-        currentEnter = EnterSnippet(wheelKeys)
+        currentEnter = true
         for _, b in ipairs(L.buttons) do WrapButton(b) end
         for f in pairs(OtherFrames()) do WrapButton(f) end
         for b in pairs(wrapped) do
@@ -500,7 +553,12 @@ function L:ClickCast_ApplyWheel()
     else
         currentEnter = nil
         for b in pairs(wrapped) do
-            Unwrap(b)
+            if b.__ll then
+                -- keep the (now empty) hover snippet; just give the wheel back to the camera
+                if b.EnableMouseWheel then b:EnableMouseWheel(false) end
+            else
+                Unwrap(b)
+            end
             ClearWheel(b)
         end
     end
@@ -707,12 +765,14 @@ local function LogClick(b, button, down)
     end
     local entry = {
         when = date("%H:%M:%S"), click = mods .. tostring(button), down = down and "press" or "release",
-        unit = tostring(b.unit), action = resolved, menu = "...",
+        unit = tostring(b.unit or (b.GetAttribute and b:GetAttribute("unit"))), action = resolved, menu = "...",
     }
     table.insert(L.clickLog, 1, entry)
     while #L.clickLog > 5 do table.remove(L.clickLog) end
     C_Timer.After(0.15, function() entry.menu = MenuOpen() end)
 end
+
+L._LogClick = LogClick
 
 hooksecurefunc(L, "Button_Init", function(_, b)
     if b.fake or b.__llClickLog then return end
