@@ -158,6 +158,13 @@ L.charDefaults = {
     -- sounds when an aura is gained / fades / stacks:
     -- { spell = "Weakened Soul", trigger = "ADDED"|"REMOVED"|"STACKS", who = "ALL"|"ME", sound = "chime" }
     auraSounds = { enabled = true, list = {} },
+    -- controller healer mode: D-pad picks a player, face buttons cast on them
+    controller = {
+        mode = "OFF",        -- OFF, ALWAYS, COMBAT
+        glyphs = "AUTO",     -- button pictures: AUTO, XBOX, PS, NINTENDO
+        toggleKey = "",      -- controller button that flips healer mode ("" = Key Bindings only)
+        bindings = {},       -- [PAD1..PAD4] = { type = "spell"|"target"|"focus"|"macro", value = ..., fixedRank }
+    },
     useOwnProfile = false,   -- false = use the shared Default profile
     profile = {},            -- this character's own settings (when useOwnProfile)
 }

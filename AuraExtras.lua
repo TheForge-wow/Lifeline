@@ -248,6 +248,7 @@ function L:Debug_Collect(P)
         P("layout changed from outside:", r.foreign)
         if r.stack then for line in r.stack:gmatch("[^\n]+") do P("  ", line) end end
     end
+    if L.Pad_DebugLines then for _, line in ipairs(L:Pad_DebugLines()) do P(line) end end
     local b
     for _, x in ipairs(L.buttons) do
         if not x.fake and x.unit and x:IsVisible() and L.SafeBool(UnitIsUnit, x.unit, "player") then b = x break end

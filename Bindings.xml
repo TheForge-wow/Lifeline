@@ -1,0 +1,4 @@
+<Bindings>
+    <Binding name="CLICK LifelinePadToggle:LeftButton" header="LIFELINE" category="ADDONS">
+    </Binding>
+</Bindings>

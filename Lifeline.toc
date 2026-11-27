@@ -29,6 +29,7 @@ Pets.lua
 Tanks.lua
 Extras.lua
 ClickCast.lua
+Controller.lua
 AuraSounds.lua
 HideBlizzard.lua
 Profiles.lua
@@ -40,6 +41,7 @@ OptionsIndicators.lua
 OptionsAuras.lua
 OptionsAuraSounds.lua
 OptionsClickCast.lua
+OptionsController.lua
 OptionsSections.lua
 OptionsExample.lua
 OptionsWindow.lua
