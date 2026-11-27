@@ -142,7 +142,7 @@ local function BuildController()
     p:Space(4)
 
     p:Head("D-pad", nil)
-    Note(p, 1, "Up, Down, Left and Right move the pick to the nearest frame that way, wrapping round to the other end of the column or row. The picked frame gets a green outline. " ..
+    Note(p, 1, "Up, Down, Left and Right move the pick to the nearest frame that way, wrapping around to the other end of the column or row. The picked frame gets a green outline. " ..
         "Face button presses do nothing until someone is picked.", 560)
 end
 
