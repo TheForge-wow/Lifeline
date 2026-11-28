@@ -6,6 +6,22 @@
 local _, L = ...
 
 L.CHANGES = {
+    { version = "1.2.6", title = "Keyboard keys and MMO mice in Click-Casting", lines = {
+        { "h", "Click-Casting tabs" },
+        { "b", "Click-Casting now has two tabs: Mouse (your normal click-casting) and MMO Mouse & Keys" },
+        { "h", "Keyboard keys" },
+        { "b", "Bind keyboard keys to your frames: click \"Press a key...\" on the MMO Mouse & Keys tab and press the key you want" },
+        { "b", "Keys work with Shift, Ctrl and Alt, just like mouse buttons" },
+        { "b", "Keys only take over while your cursor is on a Lifeline frame; everywhere else they do their normal job" },
+        { "b", "Keys can cast spells, run macros, target or set focus (the game only opens the unit menu from a real click)" },
+        { "h", "MMO mice" },
+        { "b", "New \"Quick set: MMO mice only\": adds the 12 side buttons of MMO mice like the Razer Naga and Corsair Scimitar in one go, after you confirm. Pick Numpad keys (the usual default) or the number row (1-0, -, =)" },
+        { "b", "New optional \"Shift + Numpad fix\": Windows turns Shift + Numpad keys into arrow keys (Shift + Num 2 made you walk backwards). With this on, Shift + Numpad bindings work over your frames. It takes over the arrow keys, Home, End, Page Up, Page Down and Insert while your cursor is on a frame" },
+        { "b", "Shift + Num 5 is grayed out, since Windows never sends it to the game" },
+        { "h", "Also" },
+        { "b", "Presets and profile import/export now include your keys" },
+        { "b", "The scroll wheel keeps zooming the camera over your frames unless you've bound it" },
+    } },
     { version = "1.2.5", title = "Scroll wheel with Shift, Ctrl and Alt", lines = {
         { "h", "Fixes" },
         { "b", "Shift, Ctrl and Alt now work with the scroll wheel (and mouse buttons 6 and up). The game wasn't passing the held modifier along with the wheel, so a binding like Shift + Scroll Up did nothing" },
@@ -29,9 +45,5 @@ L.CHANGES = {
         { "b", "Fixed an \"AddOn 'Lifeline' tried to call the protected function\" error when someone joined the group (or a raid grew) during combat. New frames now set up their mouse clicks the secure way, so they work right away" },
         { "b", "The Dispels tab no longer points to the removed \"skip specific debuffs\" option" },
         { "t", "/ll debug now also lists the debuffs on you (with spell IDs when the game shows them) and the last few that landed on you." },
-    } },
-    { version = "1.2.3", title = "Readable names on every class color", lines = {
-        { "b", "Names and health text now have a thin black outline, so they stay readable on light class colors like priest white, rogue yellow and paladin pink" },
-        { "b", "New \"Text outline\" setting under Appearance > Bars & Text: Thin outline (new default), Thick outline, Shadow only (the old look) or None. It covers names, health text and DEAD / OFFLINE / AFK, and shows live on the Example" },
     } },
 }

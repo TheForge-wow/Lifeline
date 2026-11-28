@@ -1,13 +1,14 @@
 --[[
     Lifeline - Click-casting
-    Bind mouse buttons and the scroll wheel (+ Shift/Ctrl/Alt) to target, menu,
-    focus, a spell or a macro.
+    Bind mouse buttons, the scroll wheel and keyboard keys (+ Shift/Ctrl/Alt)
+    to target, menu, focus, a spell or a macro.
 
     Mouse buttons are plain secure attributes on each unit button. The scroll
     wheel can't "click" a frame, so while the mouse is over a Lifeline frame a
     secure snippet points the wheel bindings at a hidden proxy button that
     carries the hovered unit; leaving the frame gives the wheel back to the
-    camera.
+    camera. Keyboard keys (MMO mouse side buttons usually send Numpad keys) work
+    the same way: they're only taken over while the cursor is on a frame.
     Bindings are stored per character and applied as secure attributes, so they
     work in combat. If Clique is installed, Lifeline leaves click-casting to it.
 ]]
@@ -36,6 +37,48 @@ function L:CC_ExtraButton(n)
     return { key = "BUTTON" .. n, label = "Button " .. n, wheel = "button" .. n, bindKey = "BUTTON" .. n, extra = n }
 end
 
+-- Keyboard keys (cdb.clickCast.extraKeys, the game's own key names such as
+-- "NUMPAD1" or "-"). Like the wheel they're bound to the hidden proxy while
+-- your cursor is over a Lifeline frame, and do their normal job elsewhere.
+L.CC_KEYS_MAX = 24
+L.CC_MMO_KEYS = { "NUMPAD1", "NUMPAD2", "NUMPAD3", "NUMPAD4", "NUMPAD5", "NUMPAD6",
+                  "NUMPAD7", "NUMPAD8", "NUMPAD9", "NUMPAD0", "NUMPADMINUS", "NUMPADPLUS" }
+-- the same 12 buttons when the mouse is set to the number row instead
+L.CC_MMO_ROW_KEYS = { "1", "2", "3", "4", "5", "6", "7", "8", "9", "0", "-", "=" }
+-- With Num Lock on, Windows turns Shift + a numpad key into the arrow / navigation
+-- key printed on it (Shift + Num 2 arrives as Down Arrow). The optional fix
+-- (cc.shiftNumpadFix) binds those keys too, only while hovering a frame.
+L.CC_NUMPAD_NAV = { NUMPAD8 = "UP", NUMPAD2 = "DOWN", NUMPAD4 = "LEFT", NUMPAD6 = "RIGHT",
+                    NUMPAD7 = "HOME", NUMPAD1 = "END", NUMPAD9 = "PAGEUP", NUMPAD3 = "PAGEDOWN",
+                    NUMPAD0 = "INSERT", NUMPADDECIMAL = "DELETE" }
+local NUMPAD_LABEL = { NUMPADMINUS = "-", NUMPADPLUS = "+", NUMPADMULTIPLY = "*",
+                       NUMPADDIVIDE = "/", NUMPADDECIMAL = "." }
+-- keys that can't be bound on their own
+L.CC_KEY_BLOCKED = { LSHIFT = true, RSHIFT = true, LCTRL = true, RCTRL = true, LALT = true, RALT = true,
+                     LMETA = true, RMETA = true, ESCAPE = true, UNKNOWN = true, PRINTSCREEN = true }
+
+function L:CC_KeyLabel(k)
+    local n = k:match("^NUMPAD(%d)$")
+    if n then return "Num " .. n end
+    if NUMPAD_LABEL[k] then return "Num " .. NUMPAD_LABEL[k] end
+    local gbt = rawget(_G, "GetBindingText")
+    if gbt then
+        local ok, t = pcall(gbt, k, "KEY_")
+        if ok and type(t) == "string" and t ~= "" then return t end
+    end
+    return k
+end
+
+-- "NUMPAD1" -> "NUMPAD1", "-" -> "X2D": safe in binding names and click names
+local function KeyId(k)
+    return (k:gsub("[^%w]", function(c) return ("X%02X"):format(c:byte()) end)):upper()
+end
+
+function L:CC_KeyButton(k)
+    local id = KeyId(k)
+    return { key = "KEY" .. id, label = L:CC_KeyLabel(k), wheel = "key" .. id:lower(), bindKey = k, keyName = k }
+end
+
 -- every button the user can bind, in display order
 function L:CC_GetButtons()
     local list = {}
@@ -53,7 +96,50 @@ function L:CC_GetButtons()
         list[#list + 1] = b
     end
     for _, b in ipairs(BASE_BOTTOM) do list[#list + 1] = b end
+    local keys = (L.cdb and L.cdb.clickCast and L.cdb.clickCast.extraKeys) or {}
+    for i, k in ipairs(keys) do
+        if i > L.CC_KEYS_MAX then break end
+        if type(k) == "string" and k ~= "" then list[#list + 1] = L:CC_KeyButton(k) end
+    end
     return list
+end
+
+function L:CC_HasKey(k)
+    for _, v in ipairs(L.cdb.clickCast.extraKeys or {}) do if v == k then return true end end
+    return false
+end
+
+-- add a keyboard key; returns false (and why) if it can't be added
+function L:CC_AddKey(k, quiet)
+    local cc = L.cdb.clickCast
+    cc.extraKeys = cc.extraKeys or {}
+    if type(k) ~= "string" or k == "" or L.CC_KEY_BLOCKED[k] then return false, "blocked" end
+    if L:CC_HasKey(k) then return false, "have" end
+    if #cc.extraKeys >= L.CC_KEYS_MAX then return false, "full" end
+    table.insert(cc.extraKeys, k)
+    if not quiet then L:ClickCast_Apply() end
+    return true
+end
+
+-- the 12 MMO mouse side buttons (Numpad 1-0, -, +, or with numberRow 1-0, -, =);
+-- returns how many were new
+function L:CC_AddMMOKeys(numberRow)
+    local added = 0
+    for _, k in ipairs(numberRow and L.CC_MMO_ROW_KEYS or L.CC_MMO_KEYS) do
+        if L:CC_AddKey(k, true) then added = added + 1 end
+    end
+    L:ClickCast_Apply()
+    return added
+end
+
+function L:CC_RemoveKey(k)
+    local cc = L.cdb.clickCast
+    for i = #(cc.extraKeys or {}), 1, -1 do
+        if cc.extraKeys[i] == k then table.remove(cc.extraKeys, i) end
+    end
+    local key = "KEY" .. KeyId(k)
+    for _, mod in ipairs(L.CC_MODS) do cc.bindings[mod.key .. key] = nil end
+    L:ClickCast_Apply()
 end
 
 function L:CC_AddButton(n)
@@ -238,7 +324,7 @@ local TARGET_MACRO = "/target [@mouseover]"
 local FOCUS_MACRO = "/focus [@mouseover]"
 
 local function BuildAttributes(wheelMode)
-    local out, wheelKeys, menus = {}, {}, {}
+    local out, wheelKeys, menus, navKeys = {}, {}, {}, {}
     local function add(k, v) out[#out + 1] = { k, v } end
 
     -- sensible defaults even with click-casting off
@@ -254,6 +340,8 @@ local function BuildAttributes(wheelMode)
     for _, btn in ipairs(L:CC_GetButtons()) do
         for _, mod in ipairs(L.CC_MODS) do
             local bind = cc.bindings[mod.key .. btn.key]
+            -- Shift + Num 5 never reaches the game (Windows swallows it); the tab grays it out
+            if mod.key == "SHIFT-" and btn.bindKey == "NUMPAD5" then bind = nil end
             if bind and bind.type and (not btn.wheel) == (not wheelMode) then
                 local p, n = mod.attr, btn.n
                 if btn.wheel then
@@ -266,6 +354,12 @@ local function BuildAttributes(wheelMode)
                     p, n = "", "-" .. click
                     if bind.type ~= "none" then
                         wheelKeys[#wheelKeys + 1] = { mod.key .. btn.bindKey, click }
+                        -- Shift + Numpad fix: also catch the key Windows sends instead
+                        local nav = mod.key == "SHIFT-" and cc.shiftNumpadFix and L.CC_NUMPAD_NAV[btn.bindKey or ""]
+                        if nav then
+                            navKeys[#navKeys + 1] = { nav, click }
+                            navKeys[#navKeys + 1] = { "SHIFT-" .. nav, click }
+                        end
                     end
                 end
                 if bind.type == "none" then
@@ -304,6 +398,11 @@ local function BuildAttributes(wheelMode)
                 end
             end
         end
+    end
+    local taken = {}
+    for _, kb in ipairs(wheelKeys) do taken[kb[1]] = true end
+    for _, kb in ipairs(navKeys) do
+        if not taken[kb[1]] then wheelKeys[#wheelKeys + 1] = kb taken[kb[1]] = true end
     end
     return out, wheelKeys, menus
 end
@@ -487,7 +586,7 @@ local function ClearWheel(b)
     if ClearOverrideBindings and not InCombatLockdown() then pcall(ClearOverrideBindings, b) end
 end
 
-local currentEnter, currentKeys
+local currentEnter, currentKeys, needWheel
 
 -- /ll debug: what the wheel keys were bound to the last time you hovered a frame
 L.wheelHover = nil
@@ -507,14 +606,15 @@ local function WrapButton(b)
     if b.fake or InCombatLockdown() or not currentEnter then return end
     if not wheelHandler then return end
     if wrapped[b] then
-        if b.EnableMouseWheel then b:EnableMouseWheel(true) end
+        if b.EnableMouseWheel then b:EnableMouseWheel(needWheel and true or false) end
         return
     end
     SecureHandlerWrapScript(b, "OnEnter", wheelHandler, ENTER_SNIPPET)
     SecureHandlerWrapScript(b, "OnLeave", wheelHandler, LEAVE_SNIPPET)
     SecureHandlerWrapScript(b, "OnHide", wheelHandler, LEAVE_SNIPPET)
     -- like Clique: the frame has to take mouse wheel events for wheel bindings to fire over it
-    if b.EnableMouseWheel then b:EnableMouseWheel(true) end
+    -- (only when the wheel is bound; keys alone leave the wheel to the camera)
+    if b.EnableMouseWheel then b:EnableMouseWheel(needWheel and true or false) end
     if not b.__llHoverNote then
         b.__llHoverNote = true
         b:HookScript("OnEnter", function(self) NoteHover(self) end)
@@ -535,6 +635,10 @@ function L:ClickCast_ApplyWheel()
     end
 
     currentKeys = #wheelKeys > 0 and wheelKeys or nil
+    needWheel = false
+    for _, kb in ipairs(wheelKeys) do
+        if kb[1]:find("MOUSEWHEEL") then needWheel = true end
+    end
     -- the hover snippet reads these
     local oldN = wheelHandler:GetAttribute("wk-n") or 0
     for i = 1, math.max(oldN, #wheelKeys) do
@@ -679,6 +783,7 @@ function L:CC_SavePreset(name)
     if name == "" then return false end
     local cc = L.cdb.clickCast
     PresetStore()[name] = { bindings = DeepCopy(cc.bindings), extraButtons = DeepCopy(cc.extraButtons or {}),
+                            extraKeys = DeepCopy(cc.extraKeys or {}),
                             smartRes = cc.smartRes }
     L:Print(("Saved click-casting preset \"%s\"."):format(name))
     return true
@@ -690,6 +795,7 @@ function L:CC_LoadPreset(name)
     local cc = L.cdb.clickCast
     cc.bindings = DeepCopy(p.bindings or {})
     cc.extraButtons = DeepCopy(p.extraButtons or {})
+    cc.extraKeys = DeepCopy(p.extraKeys or {})
     if p.smartRes then cc.smartRes = p.smartRes end
     L:ClickCast_Apply()
     L:Print(("Loaded click-casting preset \"%s\"%s."):format(name,

@@ -7,7 +7,7 @@ local ADDON, L = ...
 _G.Lifeline = L
 
 L.name    = "Lifeline"
-L.version = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version")) or "1.2.5"
+L.version = (C_AddOns and C_AddOns.GetAddOnMetadata and C_AddOns.GetAddOnMetadata(ADDON, "Version")) or "1.2.6"
 L.discord = "https://discord.gg/yskDeZjQj7"
 
 ------------------------------------------------------------------------
@@ -148,6 +148,8 @@ L.charDefaults = {
             ["BUTTON2"]       = { type = "menu" },
         },
         extraButtons = {},   -- extra mouse buttons (4-16) the user has added
+        extraKeys = {},      -- keyboard keys bound while hovering a frame ("NUMPAD1"...; MMO mice)
+        shiftNumpadFix = false, -- also bind the arrow keys Windows sends for Shift + Numpad
         smartRes = "OFF",    -- OFF, NORMAL, COMBAT: dead players get your resurrection
         selfCastDeclined = "", -- self-cast key clash the user chose to keep
         otherFrames = { player = false, target = false, focus = false, addons = false },

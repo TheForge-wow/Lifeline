@@ -1,5 +1,25 @@
 # Lifeline
 
+## v1.2.6 - Keyboard keys and MMO mice in Click-Casting
+
+### Click-Casting tabs
+- Click-Casting now has two tabs: Mouse (your normal click-casting) and MMO Mouse & Keys
+
+### Keyboard keys
+- Bind keyboard keys to your frames: click "Press a key..." on the MMO Mouse & Keys tab and press the key you want
+- Keys work with Shift, Ctrl and Alt, just like mouse buttons
+- Keys only take over while your cursor is on a Lifeline frame; everywhere else they do their normal job
+- Keys can cast spells, run macros, target or set focus (the game only opens the unit menu from a real click)
+
+### MMO mice
+- New "Quick set: MMO mice only": adds the 12 side buttons of MMO mice like the Razer Naga and Corsair Scimitar in one go, after you confirm. Pick Numpad keys (the usual default) or the number row (1-0, -, =)
+- New optional "Shift + Numpad fix": Windows turns Shift + Numpad keys into arrow keys (Shift + Num 2 made you walk backwards). With this on, Shift + Numpad bindings work over your frames. It takes over the arrow keys, Home, End, Page Up, Page Down and Insert while your cursor is on a frame
+- Shift + Num 5 is grayed out, since Windows never sends it to the game
+
+### Also
+- Presets and profile import/export now include your keys
+- The scroll wheel keeps zooming the camera over your frames unless you've bound it
+
 ## v1.2.5 - Scroll wheel with Shift, Ctrl and Alt
 
 ### Fixes

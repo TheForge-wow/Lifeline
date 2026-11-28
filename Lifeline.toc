@@ -2,7 +2,7 @@
 ## Title: |cff4cd98cLifeline|r
 ## Notes: Clean, lightweight party & raid frames built for WoW Forever.
 ## Author: Scryptik
-## Version: 1.2.5
+## Version: 1.2.6
 ## OptionalDeps: LibSharedMedia-3.0
 ## SavedVariables: LifelineDB
 ## SavedVariablesPerCharacter: LifelineCharDB

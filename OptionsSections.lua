@@ -22,6 +22,7 @@ for _, name in ipairs({
     "Buff Indicators",
     "Aura Sounds",
     "Click-Casting",
+    "MMO Mouse & Keys",
     "Profiles",
     "About",
 }) do
@@ -39,6 +40,6 @@ O.SECTIONS = {
                                         { "Status Effects", "Status Effects" }, { "Cast Bars", "Cast Bars" } } },
     { name = "Auras",         pages = { { "Buffs & Debuffs", "Auras" }, { "Buff Indicators", "Buff Indicators" },
                                         { "Debuff Filters", "Debuff Filters" }, { "Aura Sounds", "Aura Sounds" } } },
-    { name = "Click-Casting", pages = { { "Click-Casting", "Click-Casting" } } },
+    { name = "Click-Casting", pages = { { "Mouse", "Click-Casting" }, { "MMO Mouse & Keys", "MMO Mouse & Keys" } } },
     { name = "Profiles",      pages = { { "Profiles", "Profiles" } } },
 }

@@ -147,7 +147,7 @@ for _, t in ipairs(L.CC_TYPES) do VALID_CC[t.value] = true end
 
 local function SanitizeClickCast(src)
     if type(src) ~= "table" then return nil end
-    local out = { enabled = src.enabled ~= false, bindings = {}, extraButtons = {},
+    local out = { enabled = src.enabled ~= false, bindings = {}, extraButtons = {}, extraKeys = {},
                   smartRes = "OFF",
                   selfCastDeclined = (L.cdb and L.cdb.clickCast and L.cdb.clickCast.selfCastDeclined) or "" }
     out.otherFrames = { player = false, target = false, focus = false, addons = false }
@@ -161,6 +161,15 @@ local function SanitizeClickCast(src)
         for _, n in ipairs(src.extraButtons) do
             if type(n) == "number" and n >= L.CC_EXTRA_MIN and n <= L.CC_EXTRA_MAX and n % 1 == 0 then
                 out.extraButtons[#out.extraButtons + 1] = n
+            end
+        end
+    end
+    out.shiftNumpadFix = src.shiftNumpadFix == true
+    if type(src.extraKeys) == "table" then
+        for _, k in ipairs(src.extraKeys) do
+            if type(k) == "string" and #k > 0 and #k <= 20 and not k:find("%s")
+                and not L.CC_KEY_BLOCKED[k] and #out.extraKeys < L.CC_KEYS_MAX then
+                out.extraKeys[#out.extraKeys + 1] = k
             end
         end
     end
